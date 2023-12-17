@@ -2,23 +2,28 @@
 require 'toml-rb'
 
 def load_cards()
-  if ARGV.length != 1
-    puts "usage: flash_card file"
+  if ARGV.length == 0
+    puts "usage: flash_card file ..."
     exit false
   end
-  begin
-    data = TomlRB.load_file(ARGV[0])
-  rescue TomlRB::ParseError => e
-    puts '不正なTOMLファイルです。' 
-    exit false
-  rescue Errno::ENOENT => e
-    puts 'ファイルが見つかりませんでした。'
-    exit false
-  rescue Errno::EACCES => e
-    puts 'ファイルにアクセスできませんでした。'
-    exit false
+  
+  cards = []
+  ARGV.each do |path|
+    begin
+      data = TomlRB.load_file(path)
+      cards.concat(data['cards'])
+    rescue TomlRB::ParseError => e
+      puts "#{path}: 不正なTOMLファイルです。" 
+      exit false
+    rescue Errno::ENOENT => e
+      puts "#{path}: ファイルが見つかりませんでした。"
+      exit false
+    rescue Errno::EACCES => e
+      puts "#{path}: ファイルにアクセスできませんでした。"
+      exit false
+    end
   end
-  data['cards']
+  cards
 end
 
 def scan_cards(cards)
