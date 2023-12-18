@@ -11,7 +11,7 @@ def load_cards()
   ARGV.each do |path|
     begin
       data = TomlRB.load_file(path)
-      cards.concat(data['cards'])
+      cards.concat(data['cards'].map { _1.merge({ :name => path }) })
     rescue TomlRB::ParseError => e
       puts "#{path}: 不正なTOMLファイルです。" 
       exit false
@@ -34,6 +34,8 @@ def scan_cards(cards)
     puts "(#{i + 1}/#{cards.length})"
     puts
 
+    puts card[:name]
+    puts
     puts card['front']
     STDIN.gets
     puts card['back']
